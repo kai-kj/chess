@@ -1,16 +1,13 @@
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
-pub struct Piece(pub Color, pub Type);
+pub struct Piece(Color, Type);
 
 impl Piece {
-    pub fn from_bb_index(bb_index: usize) -> Self {
-        Piece(
-            Color::from_bb_index(bb_index),
-            Type::from_bb_index(bb_index),
-        )
+    pub fn from_idx(color_idx: usize, type_idx: usize) -> Self {
+        Piece(Color::from_idx(color_idx), Type::from_idx(type_idx))
     }
 
-    pub fn to_bb_index(self) -> usize {
-        self.0.to_bb_index() + self.1.to_bb_index()
+    pub fn to_idx(self) -> (usize, usize) {
+        (self.0.to_idx(), self.1.to_idx())
     }
 }
 
@@ -57,34 +54,25 @@ impl std::fmt::Display for Piece {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Color {
     White = 0,
-    Black = 6,
+    Black = 1,
 }
 
 impl Color {
-    fn from_bb_index(bb_index: usize) -> Self {
-        match bb_index / 6 {
+    fn from_idx(bb_index: usize) -> Self {
+        match bb_index {
             0 => Color::White,
             1 => Color::Black,
             _ => panic!("invalid bitboard index"),
         }
     }
 
-    fn to_bb_index(&self) -> usize {
+    fn to_idx(&self) -> usize {
         *self as usize
     }
 
     pub fn iter() -> std::slice::Iter<'static, Color> {
         static COLORS: [Color; 2] = [Color::White, Color::Black];
         COLORS.iter()
-    }
-}
-
-impl std::fmt::Display for Color {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            Color::White => write!(f, "white"),
-            Color::Black => write!(f, "black"),
-        }
     }
 }
 
@@ -99,7 +87,7 @@ pub enum Type {
 }
 
 impl Type {
-    fn from_bb_index(bb_index: usize) -> Self {
+    fn from_idx(bb_index: usize) -> Self {
         match bb_index % 6 {
             0 => Type::Pawn,
             1 => Type::Knight,
@@ -111,7 +99,7 @@ impl Type {
         }
     }
 
-    fn to_bb_index(&self) -> usize {
+    fn to_idx(&self) -> usize {
         *self as usize
     }
 
@@ -128,37 +116,11 @@ impl Type {
     }
 }
 
-impl std::fmt::Display for Type {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            Type::Pawn => write!(f, "pawn"),
-            Type::Knight => write!(f, "knight"),
-            Type::Rook => write!(f, "rook"),
-            Type::Bishop => write!(f, "bishop"),
-            Type::Queen => write!(f, "queen"),
-            Type::King => write!(f, "king"),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     const PIECE_NAMES: [&str; 12] = ["P", "N", "R", "B", "Q", "K", "p", "n", "r", "b", "q", "k"];
-
-    #[test]
-    fn bb_index() {
-        for &c in Color::iter() {
-            for &t in Type::iter() {
-                let i = Piece(c, t).to_bb_index();
-                assert_eq!(i, t.to_bb_index() + c.to_bb_index());
-                assert_eq!(t, Type::from_bb_index(i));
-                assert_eq!(c, Color::from_bb_index(i));
-                assert_eq!(Piece(c, t), Piece::from_bb_index(i));
-            }
-        }
-    }
 
     #[test]
     fn parse() {

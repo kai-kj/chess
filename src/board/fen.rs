@@ -1,8 +1,6 @@
 // https://www.chessprogramming.org/Forsyth-Edwards_Notation
 
-use super::piece::{Color, Piece};
-use super::square::Square;
-use super::Board;
+use super::*;
 
 pub const STARTING_POSITION: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w";
 
@@ -11,7 +9,7 @@ pub fn encode_fen(board: Board) -> String {
     let mut empty = 0;
     for row in (0..8).rev() {
         for col in 0..8 {
-            match board.get_square(Square::new(row, col)) {
+            match board.get_square(row, col) {
                 Some(piece) => {
                     if empty != 0 {
                         fen += &empty.to_string();
@@ -31,7 +29,7 @@ pub fn encode_fen(board: Board) -> String {
         }
     }
 
-    match board.to_play {
+    match board.to_play() {
         Color::White => fen += " w",
         Color::Black => fen += " b",
     }
@@ -64,7 +62,7 @@ pub fn decode_fen(fen: &str) -> Result<Board, FenDecodeError> {
         for piece in row.chars() {
             match piece.to_string().parse::<Piece>() {
                 Ok(piece) => {
-                    board.set_square(Square::new(7 - row_count, col_count), piece);
+                    board.set_square(7 - row_count, col_count, piece);
                     col_count += 1
                 }
                 Err(_) => match piece.to_string().parse::<usize>() {
