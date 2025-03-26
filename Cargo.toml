@@ -6,3 +6,5 @@ edition = "2024"
 [dependencies]
 paste = "1.0.15"
 thiserror = "2.0.12"
+fltk = { version = "^1.5", features = ["fltk-bundled"] }
+image = "0.25.6"
